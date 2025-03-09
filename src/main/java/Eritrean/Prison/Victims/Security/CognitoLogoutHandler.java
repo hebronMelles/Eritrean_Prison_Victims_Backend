@@ -18,12 +18,14 @@ public class CognitoLogoutHandler extends SimpleUrlLogoutSuccessHandler {
     /**
      * The domain of your user pool.
      */
-    private String domain = "https://<user pool domain>";
+    private String domain = "https://us-east-12drt5vfas.auth.us-east-1.amazoncognito.com";
 
     /**
      * An allowed callback URL.
      */
-    private String logoutRedirectUrl = "<logout uri>";
+    private final String logoutRedirectUrl = "http://localhost:8080"; // Redirect to Cognito login
+
+
 
     /**
      * The ID of your User Pool Client.
@@ -35,12 +37,12 @@ public class CognitoLogoutHandler extends SimpleUrlLogoutSuccessHandler {
      */
     @Override
     protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        return UriComponentsBuilder
-                .fromUri(URI.create(domain + "/logout"))
+        String logoutUrl = UriComponentsBuilder
+                .fromUriString(domain + "/logout")
                 .queryParam("client_id", userPoolClientId)
                 .queryParam("logout_uri", logoutRedirectUrl)
-                .encode(StandardCharsets.UTF_8)
-                .build()
+                .encode()
                 .toUriString();
+        return logoutUrl;
     }
 }
