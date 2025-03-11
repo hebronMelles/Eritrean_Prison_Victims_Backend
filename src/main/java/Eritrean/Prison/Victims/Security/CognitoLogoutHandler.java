@@ -23,7 +23,7 @@ public class CognitoLogoutHandler extends SimpleUrlLogoutSuccessHandler {
     /**
      * An allowed callback URL.
      */
-    private final String logoutRedirectUrl = "http://localhost:8080"; // Redirect to Cognito login
+    private final String logoutRedirectUrl = "http://localhost:8181/"; // Redirect to Cognito login
 
 
 

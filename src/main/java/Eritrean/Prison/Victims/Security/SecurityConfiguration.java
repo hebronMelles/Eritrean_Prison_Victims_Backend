@@ -27,7 +27,7 @@ public class SecurityConfiguration {
         http.csrf(Customizer.withDefaults())
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(
-                                "/", "/background.jpg", "/images/**", "/styles/**", "/css/**", "/js/**"
+                                "/", "/background.jpg","/github-webhook", "/images/**", "/styles/**", "/css/**", "/js/**"
                         ).permitAll()
                         .anyRequest()
                         .authenticated())
@@ -38,6 +38,6 @@ public class SecurityConfiguration {
     }
     @Bean
     public AuthenticationSuccessHandler customSuccessHandler() {
-        return new SimpleUrlAuthenticationSuccessHandler("/api/users");
+        return new SimpleUrlAuthenticationSuccessHandler("/api/users/me");
     }
 }
