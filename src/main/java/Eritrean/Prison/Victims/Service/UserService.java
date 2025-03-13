@@ -2,6 +2,7 @@ package Eritrean.Prison.Victims.Service;
 
 import Eritrean.Prison.Victims.Entity.User;
 import Eritrean.Prison.Victims.Repository.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -10,16 +11,23 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.Optional;
+
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final CreateTemporaryPreSignedUrl createTemporaryPreSignedUrl;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, CreateTemporaryPreSignedUrl createTemporaryPreSignedUrl) {
         this.userRepository = userRepository;
+        this.createTemporaryPreSignedUrl = createTemporaryPreSignedUrl;
     }
 
 
@@ -46,9 +54,6 @@ public class UserService {
             User user = existingUser.get();
             user.setFirstName(userDetails.getFirstName());
             user.setLastName(userDetails.getLastName());
-            user.setEmail(userDetails.getEmail());
-            user.setPassword(userDetails.getPassword());
-            user.setPhone(userDetails.getPhone());
             return userRepository.save(user);
         }
         return null;
@@ -71,6 +76,7 @@ public class UserService {
             System.out.println("❌ No authenticated user found.");
             return null;
         }
+
 
         System.out.println("✅ Authentication Details: " + authentication.toString());
 
@@ -114,15 +120,39 @@ public class UserService {
                     // Save user if necessary
 
                 }
+
             }
             return user;
         }
         return null;
     }
-    public void updateUserPhoto(MultipartFile file) {
+    public String updateUserPhoto(MultipartFile file) throws IOException {
         Optional<User> user = userRepository.findById(getLoggedInUserId());
+        if (user.isPresent()) {
+            String fileType = file.getContentType().split("/")[1];
+            String url = createTemporaryPreSignedUrl.generateUploadUrl(fileType);
+            String filePath = url.split("\\?")[0];
+           URL uploadUrl = new URL(url);
+            HttpURLConnection httpURLConnection  = (HttpURLConnection) uploadUrl.openConnection();
+            httpURLConnection.setDoOutput(true);
+            httpURLConnection.setRequestMethod("PUT");
+            httpURLConnection.setRequestProperty("Content-Type", file.getContentType());
+
+            file.getInputStream().transferTo(httpURLConnection.getOutputStream());
+            int responseCode = httpURLConnection.getResponseCode();
+            if (responseCode == 200) {
+                user.get().setPhotoUrl(filePath);
+                userRepository.save(user.get());
+               return  "File uploaded successfully!";
+            } else
+              return "Upload failed with response code: " + responseCode;
+
+
+        }
+        return "user not found";
 
     }
+
 
 
 }

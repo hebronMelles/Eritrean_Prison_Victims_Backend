@@ -52,7 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 // Extract user details
               String userId = verifiedJwt.getClaim("sub").asString(); // Cognito User ID
-
+                System.out.println("🔑 JWT Token: " + token);
                 // Store userId in SecurityContext
                 User user = new User(userId, "N/A", Collections.emptyList()); // Non-null password required
                 PreAuthenticatedAuthenticationToken auth = new PreAuthenticatedAuthenticationToken(user, token, Collections.emptyList());
