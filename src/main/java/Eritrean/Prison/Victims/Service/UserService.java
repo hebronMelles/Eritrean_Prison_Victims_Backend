@@ -6,8 +6,12 @@ import Eritrean.Prison.Victims.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,8 +33,6 @@ public class UserService {
         this.userRepository = userRepository;
         this.createTemporaryPreSignedUrl = createTemporaryPreSignedUrl;
     }
-
-
 
     public User createUser(User user) {
         return userRepository.save(user);
@@ -89,6 +91,7 @@ public class UserService {
             return userId;
         }
 
+
         System.out.println("❌ User principal not recognized.");
         return null;
     }
@@ -116,43 +119,67 @@ public class UserService {
                     System.out.println("🟢 Last Name: " + lastName);
                     System.out.println("🟢 Email: " + email);
                     System.out.println("🟢 Phone: " + phone);
-
-                    // Save user if necessary
-
                 }
-
             }
             return user;
         }
         return null;
     }
-    public String updateUserPhoto(MultipartFile file) throws IOException {
-        Optional<User> user = userRepository.findById(getLoggedInUserId());
-        if (user.isPresent()) {
-            String fileType = file.getContentType().split("/")[1];
-            String url = createTemporaryPreSignedUrl.generateUploadUrl(fileType);
-            String filePath = url.split("\\?")[0];
-           URL uploadUrl = new URL(url);
-            HttpURLConnection httpURLConnection  = (HttpURLConnection) uploadUrl.openConnection();
-            httpURLConnection.setDoOutput(true);
-            httpURLConnection.setRequestMethod("PUT");
-            httpURLConnection.setRequestProperty("Content-Type", file.getContentType());
 
-            file.getInputStream().transferTo(httpURLConnection.getOutputStream());
-            int responseCode = httpURLConnection.getResponseCode();
-            if (responseCode == 200) {
-                user.get().setPhotoUrl(filePath);
-                userRepository.save(user.get());
-               return  "File uploaded successfully!";
-            } else
-              return "Upload failed with response code: " + responseCode;
-
-
-        }
-        return "user not found";
-
+    public String updateUserPhoto(MultipartFile file, Object principal) throws IOException {
+        User user = getCurrentUser(principal);
+        String fileType = file.getContentType().split("/")[1];
+        String url = createTemporaryPreSignedUrl.generateUploadUrl(fileType);
+        String filePath = url.split("\\?")[0];
+        URL uploadUrl = new URL(url);
+        HttpURLConnection httpURLConnection = (HttpURLConnection) uploadUrl.openConnection();
+        httpURLConnection.setDoOutput(true);
+        httpURLConnection.setRequestMethod("PUT");
+        httpURLConnection.setRequestProperty("Content-Type", file.getContentType());
+        file.getInputStream().transferTo(httpURLConnection.getOutputStream());
+        int responseCode = httpURLConnection.getResponseCode();
+        if (responseCode == 200) {
+            user.setPhotoUrl(filePath);
+            userRepository.save(user);
+            return "File uploaded successfully!";
+        } else
+            return "Upload failed with response code: " + responseCode;
     }
+    //Optional<User> user = userRepository.findById(getLoggedInUserId());
+    //   if (user.isPresent()) {
+//            String fileType = file.getContentType().split("/")[1];
+//            String url = createTemporaryPreSignedUrl.generateUploadUrl(fileType);
+//            String filePath = url.split("\\?")[0];
+//           URL uploadUrl = new URL(url);
+//            HttpURLConnection httpURLConnection  = (HttpURLConnection) uploadUrl.openConnection();
+//            httpURLConnection.setDoOutput(true);
+//            httpURLConnection.setRequestMethod("PUT");
+//            httpURLConnection.setRequestProperty("Content-Type", file.getContentType());
+//            file.getInputStream().transferTo(httpURLConnection.getOutputStream());
+//            int responseCode = httpURLConnection.getResponseCode();
+//            if (responseCode == 200) {
+//                user.get().setPhotoUrl(filePath);
+//                userRepository.save(user.get());
+//               return  "File uploaded successfully!";
+//            } else
+//              return "Upload failed with response code: " + responseCode;
+//        }
+//        return"user not found";
 
 
+
+    public User getCurrentUser(Object principal) {
+        String sub = null;
+        if (principal instanceof OidcUser oidcUser) {
+            sub = oidcUser.getAttribute("sub");
+        } else if (principal instanceof Jwt jwt) {
+            sub = jwt.getClaimAsString("sub");
+        }
+
+        if (sub == null) {
+            throw new UsernameNotFoundException("User sub not found in principal.");
+        }
+        return userRepository.findBySub(sub);
+    }
 
 }

@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -23,7 +24,9 @@ public class User {
     private String email;
     private String password;
     private String phone;
+    private String sub;
     private String photoUrl;
     @OneToMany
-    private List<UserForm> userForms;
+    private List<UserForm> userForms = new ArrayList<>();
+    private boolean display;
 }

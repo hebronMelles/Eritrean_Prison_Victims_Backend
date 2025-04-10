@@ -2,6 +2,8 @@ package Eritrean.Prison.Victims.Entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.*;
 
 import java.util.Date;
@@ -16,8 +18,7 @@ public class UserForm {
     private Long id;
     private Date startDate;
     private Date endDate;
-    private String Location;
+    private String location;
     private String description;
-
 
 }

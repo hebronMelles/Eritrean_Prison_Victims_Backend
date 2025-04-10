@@ -4,9 +4,12 @@ package Eritrean.Prison.Victims.Controller;
 
 import Eritrean.Prison.Victims.Entity.UserForm;
 import Eritrean.Prison.Victims.Service.UserFormService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.ui.Model;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.util.List;
 
@@ -23,8 +26,8 @@ public class UserFormController {
 
 
     @PostMapping
-    public ResponseEntity<UserForm> createUserForm(@RequestBody UserForm userForm) {
-        return ResponseEntity.ok(userFormService.createUserForm(userForm));
+    public ResponseEntity<UserForm> createUserForm(@RequestBody UserForm userForm,@AuthenticationPrincipal Object principal) {
+        return ResponseEntity.ok(userFormService.createUserForm(userForm,principal));
     }
 
     @GetMapping
@@ -48,5 +51,18 @@ public class UserFormController {
     public ResponseEntity<Void> deleteUserForm(@PathVariable Long id) {
         return userFormService.deleteUserForm(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
+
+    @GetMapping("/form")
+    public String showUserForm(Model model) {
+        model.addAttribute("userForm", new UserForm()); // Pass object to Thymeleaf
+        return "UserForm";
+    }
+
+    // Handle form submission
+//    @PostMapping("/form")
+//    public String submitUserForm(@ModelAttribute UserForm userForm) {
+//      userFormService.createUserForm(userForm);
+//        return "redirect:/form"; // Redirect to prevent duplicate form submission
+//    }
 }
 
