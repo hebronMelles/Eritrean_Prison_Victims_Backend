@@ -2,6 +2,7 @@ package Eritrean.Prison.Victims.Controller;
 
 
 
+import Eritrean.Prison.Victims.DTOMapper.DtoMapper;
 import Eritrean.Prison.Victims.Entity.UserForm;
 import Eritrean.Prison.Victims.Service.UserFormService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,10 +19,12 @@ import java.util.List;
 public class UserFormController {
 
    private final UserFormService userFormService;
+   private final DtoMapper dtoMapper;
 
   @Autowired
-    public UserFormController(UserFormService userFormService) {
+    public UserFormController(UserFormService userFormService, DtoMapper dtoMapper) {
         this.userFormService = userFormService;
+        this.dtoMapper = dtoMapper;
     }
 
 
@@ -36,9 +39,9 @@ public class UserFormController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserForm> getUserFormById(@PathVariable Long id) {
+    public ResponseEntity<?> getUserFormById(@PathVariable Long id) {
         UserForm userForm = userFormService.getUserFormById(id);
-        return userForm != null ? ResponseEntity.ok(userForm) : ResponseEntity.notFound().build();
+        return userForm != null ? ResponseEntity.ok(dtoMapper.userFormToDto(userForm)) : ResponseEntity.notFound().build();
     }
 
     @PutMapping("/{id}")
@@ -48,8 +51,8 @@ public class UserFormController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUserForm(@PathVariable Long id) {
-        return userFormService.deleteUserForm(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+    public ResponseEntity<String> deleteUserForm(@PathVariable Long id, @AuthenticationPrincipal Object principal) {
+        return userFormService.deleteUserForm(id,principal) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
     @GetMapping("/form")
@@ -57,12 +60,5 @@ public class UserFormController {
         model.addAttribute("userForm", new UserForm()); // Pass object to Thymeleaf
         return "UserForm";
     }
-
-    // Handle form submission
-//    @PostMapping("/form")
-//    public String submitUserForm(@ModelAttribute UserForm userForm) {
-//      userFormService.createUserForm(userForm);
-//        return "redirect:/form"; // Redirect to prevent duplicate form submission
-//    }
 }
 

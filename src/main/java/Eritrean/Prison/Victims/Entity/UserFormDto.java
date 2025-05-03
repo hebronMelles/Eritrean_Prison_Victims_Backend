@@ -1,21 +1,18 @@
 package Eritrean.Prison.Victims.Entity;
 
-import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Date;
-
-@Entity
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
 @Setter
-public class UserForm {
-    @Id @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+@NoArgsConstructor
+public class UserFormDto {
     private Date startDate;
     private Date endDate;
     private String location;
     private String description;
-
 }
