@@ -3,7 +3,9 @@ package Eritrean.Prison.Victims.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.Date;
+import java.util.Locale;
 
 @Entity
 @Getter
@@ -13,8 +15,8 @@ import java.util.Date;
 public class UserForm {
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private Date startDate;
-    private Date endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private String location;
     private String description;
 

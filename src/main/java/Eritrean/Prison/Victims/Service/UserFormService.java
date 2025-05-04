@@ -6,8 +6,11 @@ import Eritrean.Prison.Victims.Entity.User;
 import Eritrean.Prison.Victims.Repository.UserFormRepository;
 import Eritrean.Prison.Victims.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.Optional;
 import java.util.List;
 
@@ -73,5 +76,12 @@ public class UserFormService {
     private User getLoggedUser(Object principal) {
         User user = userService.getCurrentUser(principal);
         return user;
+    }
+    public List<UserForm> search(String location,LocalDate startDate, LocalDate endDate){
+        Specification<UserForm> spec = Specification.where(UserFormSpecification.hasLocation(location)
+                .and(UserFormSpecification.hasStartDate(startDate))
+                .and(UserFormSpecification.hasEndDate(endDate))
+        );
+        return userFormRepository.findAll(spec);
     }
 }

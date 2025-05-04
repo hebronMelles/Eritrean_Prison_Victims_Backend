@@ -40,7 +40,7 @@ public class SecurityConfiguration {
                 .cors(Customizer.withDefaults())
                         .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/", "/background.jpg", "/styles/**", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/", "/background.jpg", "/styles/**", "/css/**", "/js/**", "/images/**","/github-webhook/").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/users/upload/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/users/me").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/users/secure-endpoint").authenticated()

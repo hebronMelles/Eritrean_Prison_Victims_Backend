@@ -12,12 +12,22 @@ import java.util.List;
 public class DtoMapper {
     public UserDto userToConceleadDto(User user) {
       UserDto userDto = new UserDto();
-      userDto.setFirstName(user.getFirstName());
-      userDto.setLastName(user.getLastName());
-      userDto.setEmail(user.getEmail());
+      if(user.isDisplay() == true){
+          userDto.setFirstName(user.getFirstName());
+          userDto.setLastName(user.getLastName());
+          userDto.setEmail(user.getEmail());
+          userDto.setPhotoUrl(user.getPhotoUrl());
+          userDto.setPhone(user.getPhone());
+      }
+      else {
+          userDto.setFirstName("Unavailable");
+          userDto.setLastName("Unavailable");
+          userDto.setEmail("Unavailable");
+          userDto.setPhotoUrl("Unavailable");
+          userDto.setPhone("Unavailable");
+      }
       userDto.setUserForms(userFormListToDtoList(user.getUserForms()));
-      userDto.setPhotoUrl(user.getPhotoUrl());
-      userDto.setPhone(user.getPhone());
+
       return userDto;
     }
     public UserFormDto userFormToDto(UserForm userForm) {

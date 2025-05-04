@@ -29,5 +29,5 @@ public class User {
     private String photoUrl;
     @OneToMany
     private List<UserForm> userForms = new ArrayList<>();
-    private boolean display;
+    private boolean display = false;
 }
