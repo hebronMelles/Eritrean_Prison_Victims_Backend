@@ -63,7 +63,7 @@ public class UserFormService {
         return null;
     }
 
-    // ✅ Delete UserForm
+
     public boolean deleteUserForm(Long id, Object principal) {
         if (userFormRepository.existsById(id)) {
             userService.deleteUserFormFromUser(getUserFormById(id),principal);
@@ -73,10 +73,6 @@ public class UserFormService {
         return false;
     }
 
-    private User getLoggedUser(Object principal) {
-        User user = userService.getCurrentUser(principal);
-        return user;
-    }
     public List<UserForm> search(String location,LocalDate startDate, LocalDate endDate){
         Specification<UserForm> spec = Specification.where(UserFormSpecification.hasLocation(location)
                 .and(UserFormSpecification.hasStartDate(startDate))

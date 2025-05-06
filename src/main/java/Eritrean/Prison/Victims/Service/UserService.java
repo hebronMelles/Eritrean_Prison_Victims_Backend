@@ -35,10 +35,6 @@ public class UserService {
         this.createTemporaryPreSignedUrl = createTemporaryPreSignedUrl;
     }
 
-    public User createUser(User user) {
-        return userRepository.save(user);
-    }
-
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
@@ -58,17 +54,6 @@ public class UserService {
         }
         return "Fail";
     }
-
-    // ✅ Delete user
-    public String deleteUser(Object principal) {
-        User existingUser = getCurrentUser(principal);
-        if (existingUser != null) {
-            userRepository.delete(existingUser);
-            return "Success";
-        }
-        return "Fail";
-    }
-
 
     public String updateUserPhoto(MultipartFile file, Object principal) throws IOException {
         User user = getCurrentUser(principal);
@@ -107,5 +92,15 @@ public class UserService {
     public void deleteUserFormFromUser(UserForm userForm, Object principal) {
         User user = getCurrentUser(principal);
         user.getUserForms().remove(userForm);
+    }
+    public void displayUserIdentity(Object principal){
+        User user = getCurrentUser(principal);
+        user.setDisplay(true);
+        userRepository.save(user);
+    }
+    public void hideUserIdentity(Object principal){
+        User user = getCurrentUser(principal);
+        user.setDisplay(false);
+        userRepository.save(user);
     }
 }

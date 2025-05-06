@@ -1,5 +1,6 @@
 package Eritrean.Prison.Victims.Security;
 
+import Eritrean.Prison.Victims.ROLE;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +10,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
@@ -21,6 +24,9 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Class to configure AWS Cognito as an OAuth 2.0 authorizer with Spring Security.
@@ -38,7 +44,7 @@ public class SecurityConfiguration {
 
         http
                 .cors(Customizer.withDefaults())
-                        .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/", "/background.jpg", "/styles/**", "/css/**", "/js/**", "/images/**","/github-webhook/").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/users/upload/**").authenticated()
@@ -57,6 +63,8 @@ public class SecurityConfiguration {
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(Customizer.withDefaults())      // THIS enables Bearer token (JWT) support
                 )
+
+
                 .logout(logout -> logout.logoutSuccessHandler(cognitoLogoutHandler));
         return http.build();
     }
@@ -64,7 +72,6 @@ public class SecurityConfiguration {
     @Bean
     public AuthenticationSuccessHandler customSuccessHandler() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println(authentication);
         return new SimpleUrlAuthenticationSuccessHandler("/api/users/me");
     }
 
@@ -73,8 +80,10 @@ public class SecurityConfiguration {
         return JwtDecoders.fromIssuerLocation("https://cognito-idp.us-east-1.amazonaws.com/us-east-1_2drt5vFAs");
     }
 
+    }
 
 
-}
+
+
 
 

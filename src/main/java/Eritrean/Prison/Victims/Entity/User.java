@@ -1,5 +1,6 @@
 package Eritrean.Prison.Victims.Entity;
 
+import Eritrean.Prison.Victims.ROLE;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,4 +31,6 @@ public class User {
     @OneToMany
     private List<UserForm> userForms = new ArrayList<>();
     private boolean display = false;
+    @Enumerated(EnumType.STRING)
+    private ROLE role;
 }
