@@ -13,11 +13,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
-import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
-import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.OAuth2TokenValidator;
-import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
+import org.springframework.security.oauth2.core.*;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
@@ -27,6 +27,9 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Class to configure AWS Cognito as an OAuth 2.0 authorizer with Spring Security.
@@ -48,7 +51,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/", "/background.jpg", "/styles/**", "/css/**", "/js/**", "/images/**","/github-webhook/").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/users/upload/**").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/users/me").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/users/me").hasRole("USER")
                         .requestMatchers(HttpMethod.GET, "/api/users/secure-endpoint").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/users/access-token").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/user-forms/form").authenticated()
@@ -58,11 +61,23 @@ public class SecurityConfiguration {
                         .anyRequest()
                         .authenticated())
 
+//                .oauth2Login(oauth2 -> oauth2
+//                        .successHandler(customSuccessHandler()))
                 .oauth2Login(oauth2 -> oauth2
-                        .successHandler(customSuccessHandler()))
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(Customizer.withDefaults())      // THIS enables Bearer token (JWT) support
+                        .userInfoEndpoint(userInfo -> userInfo.oidcUserService(oidcUserService()))
+                        .successHandler(customSuccessHandler())
                 )
+
+
+//                .oauth2ResourceServer(oauth2 -> oauth2
+//                        .jwt(Customizer.withDefaults())      // THIS enables Bearer token (JWT) support
+//                )
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt
+                                .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                        )
+                )
+
 
 
                 .logout(logout -> logout.logoutSuccessHandler(cognitoLogoutHandler));
@@ -79,8 +94,48 @@ public class SecurityConfiguration {
     public JwtDecoder jwtDecoder() {
         return JwtDecoders.fromIssuerLocation("https://cognito-idp.us-east-1.amazonaws.com/us-east-1_2drt5vFAs");
     }
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("cognito:groups");
+        grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
 
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        return jwtAuthenticationConverter;
     }
+    @Bean
+    public OidcUserService oidcUserService() {
+        OidcUserService delegate = new OidcUserService();
+
+        return new OidcUserService() {
+            @Override
+            public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
+                OidcUser oidcUser = delegate.loadUser(userRequest);
+
+                List<String> groups = oidcUser.getClaimAsStringList("cognito:groups");
+
+                if (groups == null) {
+                    groups = Collections.emptyList(); // or handle accordingly
+                }
+
+                Set<GrantedAuthority> mappedAuthorities = groups.stream()
+                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                        .collect(Collectors.toSet());
+
+                return new DefaultOidcUser(mappedAuthorities, oidcUser.getIdToken(), oidcUser.getUserInfo());
+            }
+
+        };
+    }
+
+
+
+
+
+
+
+}
 
 
 

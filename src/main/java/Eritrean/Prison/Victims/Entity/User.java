@@ -31,6 +31,5 @@ public class User {
     @OneToMany
     private List<UserForm> userForms = new ArrayList<>();
     private boolean display = false;
-    @Enumerated(EnumType.STRING)
-    private ROLE role;
+
 }

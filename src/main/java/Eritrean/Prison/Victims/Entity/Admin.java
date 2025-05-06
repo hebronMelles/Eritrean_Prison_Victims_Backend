@@ -23,7 +23,6 @@ public class Admin {
     private String email;
     private String password;
     private String phone;
-    @Enumerated(EnumType.STRING)
-    private ROLE role;
+
 
 }
