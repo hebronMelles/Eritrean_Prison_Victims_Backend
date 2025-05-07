@@ -52,6 +52,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/", "/background.jpg", "/styles/**", "/css/**", "/js/**", "/images/**","/github-webhook/").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/users/upload/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/users/me").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST,"/messages/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/users/secure-endpoint").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/users/access-token").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/user-forms/form").authenticated()

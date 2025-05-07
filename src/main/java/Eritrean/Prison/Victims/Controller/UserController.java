@@ -48,7 +48,8 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<?> getUserInfo(@AuthenticationPrincipal Object principal) {
         User user = userService.getCurrentUser(principal);
-        return user != null ? ResponseEntity.ok(dtoMapper.userToConceleadDto(user)) : ResponseEntity.status(401).body("User not authenticated");
+     //   return user != null ? ResponseEntity.ok(dtoMapper.userToConceleadDto(user)) : ResponseEntity.status(401).body("User not authenticated");
+        return user != null ? ResponseEntity.ok(user) : ResponseEntity.status(401).body("User not authenticated");
     }
 
 
