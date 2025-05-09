@@ -1,5 +1,6 @@
 package Eritrean.Prison.Victims.Controller;
 import Eritrean.Prison.Victims.DTOMapper.DtoMapper;
+import Eritrean.Prison.Victims.Report.UsersCount;
 import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -16,6 +17,7 @@ import Eritrean.Prison.Victims.Entity.User;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -42,14 +44,14 @@ public class UserController {
     public ResponseEntity<?> getUserById(@PathVariable String id) {
         System.out.println("🔍 Fetching user with ID: " + id);
         User user = userService.getUserById(id);
-        return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
+        return user != null ? ResponseEntity.ok(dtoMapper.userToConceleadDto(user)) : ResponseEntity.notFound().build();
     }
 
     @GetMapping("/me")
     public ResponseEntity<?> getUserInfo(@AuthenticationPrincipal Object principal) {
         User user = userService.getCurrentUser(principal);
      //   return user != null ? ResponseEntity.ok(dtoMapper.userToConceleadDto(user)) : ResponseEntity.status(401).body("User not authenticated");
-        return user != null ? ResponseEntity.ok(user) : ResponseEntity.status(401).body("User not authenticated");
+        return user != null ? ResponseEntity.ok(dtoMapper.userToConceleadDto(user)) : ResponseEntity.status(401).body("User not authenticated");
     }
 
 
@@ -60,10 +62,7 @@ public class UserController {
             @AuthenticationPrincipal OAuth2User oauth2User) {
 
         String token = authorizedClient.getAccessToken().getTokenValue();
-        String email = oauth2User.getAttribute("email");
-        String username = oauth2User.getAttribute("username");
-
-        return "Access Token: " + token + "\nUser Email: " + email;
+        return "Access Token: " + token;
     }
 
 
@@ -82,6 +81,10 @@ public class UserController {
     public ResponseEntity<String> hideUserIdentity(@AuthenticationPrincipal Object principal){
         userService.hideUserIdentity(principal);
         return ResponseEntity.ok("User made available successfully");
+    }
+    @GetMapping("/report")
+    public String getAllUsersByCount(){
+        return userService.getAllUsersByCount();
     }
 
 }

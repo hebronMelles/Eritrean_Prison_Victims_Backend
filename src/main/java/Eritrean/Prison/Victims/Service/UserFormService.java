@@ -1,6 +1,7 @@
 package Eritrean.Prison.Victims.Service;
 
 import Eritrean.Prison.Victims.DTOMapper.DtoMapper;
+import Eritrean.Prison.Victims.Report.LocationCount;
 import Eritrean.Prison.Victims.Entity.UserForm;
 import Eritrean.Prison.Victims.Entity.User;
 import Eritrean.Prison.Victims.Repository.UserFormRepository;
@@ -10,7 +11,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.Optional;
 import java.util.List;
 
@@ -33,6 +33,7 @@ public class UserFormService {
     public UserForm createUserForm(UserForm userForm, Object principal) {
         User user = userService.getCurrentUser(principal);
         List<UserForm> userForm1 = user.getUserForms();
+        userForm.setUser(user);
         userFormRepository.save(userForm);
         userForm1.add(userForm);
         userRepository.save(user);
@@ -66,6 +67,13 @@ public class UserFormService {
 
     public boolean deleteUserForm(Long id, Object principal) {
         if (userFormRepository.existsById(id)) {
+            UserForm userForm = getUserFormById(id);
+            User user = userForm.getUser();
+            if(user != null){
+                user.getUserForms().remove(userForm);
+                userForm.setUser(null);
+            }
+
             userService.deleteUserFormFromUser(getUserFormById(id),principal);
             userFormRepository.deleteById(id);
             return true;
@@ -79,5 +87,11 @@ public class UserFormService {
                 .and(UserFormSpecification.hasEndDate(endDate))
         );
         return userFormRepository.findAll(spec);
+    }
+    public List<LocationCount> getUserCountByLocation() {
+        return userFormRepository.getUserFormsByLocation();
+    }
+    public String getTotalNumberOfPrisoners(){
+        return "Total number of Prisoners " + userFormRepository.getAllPrisoners();
     }
 }

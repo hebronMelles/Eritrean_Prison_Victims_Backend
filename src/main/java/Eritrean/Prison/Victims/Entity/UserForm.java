@@ -1,5 +1,6 @@
 package Eritrean.Prison.Victims.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,5 +20,8 @@ public class UserForm {
     private LocalDate endDate;
     private String location;
     private String description;
-
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonBackReference
+    private User user;
 }

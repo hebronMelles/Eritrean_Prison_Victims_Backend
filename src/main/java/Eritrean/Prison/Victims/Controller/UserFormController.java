@@ -3,6 +3,7 @@ package Eritrean.Prison.Victims.Controller;
 
 
 import Eritrean.Prison.Victims.DTOMapper.DtoMapper;
+import Eritrean.Prison.Victims.Report.LocationCount;
 import Eritrean.Prison.Victims.Entity.UserForm;
 import Eritrean.Prison.Victims.Service.UserFormService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -69,6 +70,14 @@ public class UserFormController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
         return userFormService.search(location, startDate,endDate);
+    }
+    @GetMapping("/report-by-location")
+    public List<LocationCount> getUserCountByLocation() {
+        return userFormService.getUserCountByLocation();
+    }
+    @GetMapping("report-by-prisoners")
+    public String getTotalNumberOfPrisoners(){
+        return userFormService.getTotalNumberOfPrisoners();
     }
 }
 

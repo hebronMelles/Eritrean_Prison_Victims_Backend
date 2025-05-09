@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.Date;
 @Getter
 @AllArgsConstructor
@@ -16,4 +17,5 @@ public class UserFormDto {
     private LocalDate endDate;
     private String location;
     private String description;
+    private String numberOfYears;
 }

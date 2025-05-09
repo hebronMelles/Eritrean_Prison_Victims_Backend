@@ -2,9 +2,11 @@ package Eritrean.Prison.Victims.Service;
 
 import Eritrean.Prison.Victims.Entity.User;
 import Eritrean.Prison.Victims.Entity.UserForm;
+import Eritrean.Prison.Victims.Report.UsersCount;
 import Eritrean.Prison.Victims.Repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.method.P;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,6 +22,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 import java.util.Optional;
 
@@ -103,4 +107,8 @@ public class UserService {
         user.setDisplay(false);
         userRepository.save(user);
     }
+    public String getAllUsersByCount(){
+        return "Total number of Users" + userRepository.getTotalUsers();
+    }
+
 }

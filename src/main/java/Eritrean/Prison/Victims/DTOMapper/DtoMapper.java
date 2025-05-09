@@ -3,8 +3,13 @@ import Eritrean.Prison.Victims.Entity.User;
 import Eritrean.Prison.Victims.Entity.UserDto;
 import Eritrean.Prison.Victims.Entity.UserForm;
 import Eritrean.Prison.Victims.Entity.UserFormDto;
+import Eritrean.Prison.Victims.Service.UserFormService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +17,7 @@ import java.util.List;
 public class DtoMapper {
     public UserDto userToConceleadDto(User user) {
       UserDto userDto = new UserDto();
-      if(user.isDisplay() == true){
+      if(user.isDisplay()){
           userDto.setFirstName(user.getFirstName());
           userDto.setLastName(user.getLastName());
           userDto.setEmail(user.getEmail());
@@ -36,6 +41,7 @@ public class DtoMapper {
         userFormDto.setLocation(userForm.getLocation());
         userFormDto.setEndDate(userForm.getEndDate());
         userFormDto.setStartDate(userForm.getStartDate());
+        userFormDto.setNumberOfYears(calculateNumberOfYears(userForm.getStartDate().atStartOfDay(),userForm.getEndDate().atStartOfDay()));
         return userFormDto;
     }
     public List<UserFormDto> userFormListToDtoList(List<UserForm> userForms) {
@@ -44,5 +50,11 @@ public class DtoMapper {
             userFormDtosList.add(userFormToDto(userForm));
         }
         return userFormDtosList;
+    }
+    private String calculateNumberOfYears(LocalDateTime startDate, LocalDateTime endDate){
+        LocalDate endDateLocal = endDate.toLocalDate();
+        LocalDate startDateLocal = startDate.toLocalDate();
+        Period period = Period.between(startDateLocal,endDateLocal);
+        return String.format("%d years, %d months, %d days", period.getYears(), period.getMonths(), period.getDays());
     }
 }
