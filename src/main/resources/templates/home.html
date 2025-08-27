@@ -1,0 +1,107 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" th:href="@{/styles/fonts.css}">
+<style>
+    /* Global Reset */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+    }
+
+    /* Background Styling */
+    body {
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        background: url('/background.jpg')no-repeat center center fixed;
+        background-size:cover; /* Ensures the image fills the screen */
+        background-position: center center; /* Centers the image */
+        background-attachment: fixed;
+        object-fit: cover;
+        color: white;
+    }
+
+    /* Content Box */
+    .container {
+        background: rgba(0, 0, 0, 0.6); /* Semi-transparent black */
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.3);
+        width: 90%;
+        max-width: 500px;
+
+    }
+
+    h1 {
+        margin-bottom: 20px;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .info {
+        margin-top: 15px;
+        font-size: 16px;
+        line-height: 1.5;
+    }
+
+    /* Button Styling */
+    button {
+        background-color: #f57c00;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+        margin-top: 15px;
+    }
+
+    button:hover {
+        background-color: #e65100;
+    }
+
+    a {
+        text-decoration: none;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1> Welcome To Eritrean Prison Victims</h1>
+
+    <!-- If User is Authenticated -->
+    <div sec:authorize="isAuthenticated()">
+        <div class="info">
+            Hello, <strong th:text="${#authentication.name}"></strong>!
+        </div>
+
+        <div class="info">
+            Email: <strong th:text="${#authentication.getPrincipal().getAttributes().get('email')}"></strong>
+        </div>
+
+        <div>
+            <a th:href="@{/logout}"><button>Log out</button></a>
+        </div>
+    </div>
+
+    <!-- If User is NOT Authenticated -->
+    <div sec:authorize="isAnonymous()">
+        <div>
+            <a th:href="@{/oauth2/authorization/cognito}"><button>Continue</button></a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
