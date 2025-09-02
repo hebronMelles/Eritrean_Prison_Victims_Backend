@@ -11,6 +11,8 @@ import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2Aut
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
@@ -46,6 +48,18 @@ public class AdminController {
         String username = oauth2User.getAttribute("username");
 
         return "Access Token: " + token;
+    }
+
+    @GetMapping("/all")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    public List<User> getAllUsers() {
+        return adminService.getAllUsers();
+    }
+
+    @DeleteMapping("/delete-by-user-id/{userId}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    public void deleteUserById(@PathVariable String userId) {
+        adminService.deleteUserById(userId);
     }
 
 }

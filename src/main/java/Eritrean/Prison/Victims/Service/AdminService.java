@@ -6,6 +6,8 @@ import Eritrean.Prison.Victims.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class AdminService {
     private final UserRepository userRepository;
@@ -30,6 +32,14 @@ public class AdminService {
             return "Success";
         }
         return "Fail";
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public void deleteUserById(String userId) {
+        userRepository.deleteById(userId);
     }
 
 

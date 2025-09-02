@@ -1,4 +1,4 @@
-package Eritrean.Prison.Victims.Entity;
+package Eritrean.Prison.Victims.Dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
